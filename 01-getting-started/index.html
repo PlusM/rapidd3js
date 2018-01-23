@@ -1,22 +1,74 @@
 <html xmlns="html">
-    <head>
-        <title>Hello d3 World</title>
-        <!-- For stand-alone development, download Bootstrap from http://getbootstrap.com/getting-started/
+
+<head>
+    <title>Hello d3 World</title>
+    <!-- For stand-alone development, download Bootstrap from http://getbootstrap.com/getting-started/
              and install under your web application's root directory then modify the below link as
              appropriate. -->
-        <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
-    </head>
-    <body>
-        <div class="container">
-            <div>
-                <h3>Hello Rapid D3.js World</h3>
-            </div>
-            <!-- This is where we're going to add content with the CSS selector "#content". -->
-            <div id="content"></div>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+</head>
+
+<body>
+    <div class="container">
+        <div>
+            <h3>Hello Rapid D3.js World</h3>
         </div>
-        <!-- For stand-alone environment, download D3js from http://d3js.org/
+        <!-- This is where we're going to add content with the CSS selector "#content". -->
+        <div id="content"></div>
+    </div>
+    <!-- For stand-alone environment, download D3js from http://d3js.org/
              and install under your web application's root directory then modify the below src as
              appropriate. -->
-        <script src="https://d3js.org/d3.v3.min.js"></script>
-    </body>
+    <script src="https://d3js.org/d3.v3.min.js"></script>
+    <!--Comments to help understanding?
+        content = d3.selectAll("#content"); # select the div from the HTML DOM into a variable called content
+        ul = content.append("ul"); #append a un-numbered list to the div
+        data = ["Item 1","Item 2","Item 3"]; #create an array of 3 data text list entries
+        ul.selectAll('li').data(data).enter().append('li').text(function(d) { return d; });
+        
+        #Five key things happen above (number for the command split by .) :-
+        #1. create virtual/placeholder line tags (b/c there is nothing to put in them right now)
+        #2. the placeholder has its data set to the array of 3 items
+        #3. enter() iterates through the data that **does not exist yet** in the list
+        #This is important to note: we have three items in the data, but no li elements created
+        #therefore we have three new items for the enter() to create in the DOM
+        #4. Each time enter() processes, it appends a new li element to the DOM
+        #5. Finally we set the text, the function is called with the current data item in the iterator,
+        #and return the data value passed and the list item text is set to the value of that iteration
+
+        data = ["Item A","Item B","Item C","Item D"]; #refresh the data variable with changed values and one extra
+        ul.selectAll('li').data(data).enter().append('li').text(function(d) { return d; });
+        
+        #running the same command again will leave the first three items unchanged and add the fourth
+        #this is because enter() will only enter in new items - it already has three line items and doesn't overwrite
+        #if you go and look at the data property of the element (using element inspector), you should see that the data
+        #has been updated, it just hasn't been put into the DOM
+
+        ul.selectAll('li').text(function(d) {return d;});
+        #this should refresh all items with the text now in d
+
+        data = ["Item 1","Item 2","Item 3"]; #change the list back to its original state
+        items = ul.selectAll('li').data(data); #select all the li elements from the ul variable and insert data
+        #this creates a variable that looks like your list should do in HTML, tags+data
+
+        items.exit().remove();
+        #this will remove any elements where there is no corresponding data for it
+        #in other words, we've just recreated a list of three items, which is one less than currently in the DOM
+        #So we've then used the exit() command to do the opposite of the enter() command
+        #i.e. instead of only entering in data where it doesn't already exist, this removes data where it doesn't exist
+        #so it will remove the last one only, as it has 4 li elements and only three items
+        #note that, also like enter(), it will not update the elements already there with coresponding data
+        #even if that data is not what you want
+
+        items.text(function(d) {return d;});
+        #now you can update the text content (note you're not using enter here as it wouldn't do any good)
+
+        #that's everything you need to know about the essence of how D3 works
+        #adding and removing elements in the DOM is what it's all about
+        #anything on top of that is gravy
+        #all the drawings, tables, manipulations are nothing without inserting and removing from the DOM
+
+
+</body>
+
 </html>
