@@ -17,6 +17,9 @@ var data = [];
 /*setting the columns names I want as an array*/
 var columns = ["No", "Name", "Team", "Pos"];
 
+/*adding variable for the team name drop-down (selector)*/
+var teams = [];
+
 /* Select the DIV in the document with the ID of "roster".
  * Append a <table class="table"></table> to the selected DIV.
  * The "table" class is a beautification measure via Bootstrap's CSS.
@@ -34,6 +37,11 @@ var thead = table.append('thead').append('tr');
 /* Append <tbody></tbody> to the table and store it in the "tbody" variable. */
 var tbody = table.append('tbody');
 
+/*adding in a selector to the page-title div*/
+var teamSelector = d3.select('#page-title') /*get the div from the HTML*/
+    .append('select') /*append a selector to it*/
+    .attr('id', 'team-selector') /*give it an id of team-selector*/
+
 /* Part 2: the reload function (where the data gets loaded and sorted)
  * Function to reload the data from the data file.
  * Call the redraw() function after the data is loaded to drive the drawing of the data.
@@ -44,6 +52,10 @@ var reload = function() {
             data = rows;
             data.forEach(function(d) {
                 d.Pos = positions[d.Pos];
+                if (teams.indexOf(d.TeamID) < 0) {
+                    teams.push(d.TeamID);
+                    teams[d.TeamID] = d.Team;
+                };
             }); /*map in the positions using the lookup to positions variable*/
             redraw();
         })
@@ -67,6 +79,14 @@ LATER: reload() works just as well*/
  * We'll be filling this in during the lesson.
  */
 var redraw = function() {
+    teamSelector.selectAll("option") /*only want to call the team list in for the selector when initialising */
+        .data(teams) /*assign teams array as the data for teamSelector*/
+        .enter() /*start an enter iterator*/
+        .append("option") /*append an option tag...*/
+        .attr("value", function(d) { return d; }) /*...with the value attribute of the current data value (teamID)*/
+        .text(function(d) { return teams[d]; }) /*set the options text to the team name*/
+        .sort(function(a, b) { return d3.ascending(a, b); }); /*sort the options in ascending order*/
+
     thead.selectAll("th") /*select virtual th elements*/
         .data(columns) /*map & assign the first record's keys (as in key:value) as their data*/
         .enter()
