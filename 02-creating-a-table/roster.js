@@ -37,7 +37,7 @@ var tbody = table.append('tbody');
  * We'll be filling this in during the lesson.
  */
 var reload = function() {
-    d3.tsv('afcw-roster.tsv', function(rows) {
+    d3.tsv('eng2-rosters.tsv', function(rows) {
             data = rows;
             data.forEach(function(d) {
                 d.Pos = positions[d.Pos];
