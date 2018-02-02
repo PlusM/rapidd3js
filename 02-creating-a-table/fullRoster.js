@@ -15,7 +15,7 @@ var positions = { G: "Goalkeeper", D: "Defender", M: "Midfielder", F: "Forward" 
 var data = [];
 
 /*setting the columns names I want as an array*/
-var columns = ["No", "Name", "Team", "Pos"];
+var columns = ["No", "Name", "Pos"];
 
 /*adding variable for the team name drop-down (selector)*/
 var teams = [];
@@ -41,6 +41,8 @@ var tbody = table.append('tbody');
 var teamSelector = d3.select('#page-title') /*get the div from the HTML*/
     .append('select') /*append a selector to it*/
     .attr('id', 'team-selector') /*give it an id of team-selector*/
+    .on("change", function() { selectTeam(this.value); });
+
 
 /* Part 2: the reload function (where the data gets loaded and sorted)
  * Function to reload the data from the data file.
@@ -49,17 +51,18 @@ var teamSelector = d3.select('#page-title') /*get the div from the HTML*/
  */
 var reload = function() {
     d3.tsv('eng2-rosters.tsv', function(rows) {
-            data = rows;
-            data.forEach(function(d) {
-                d.Pos = positions[d.Pos];
-                if (teams.indexOf(d.TeamID) < 0) {
-                    teams.push(d.TeamID);
-                    teams[d.TeamID] = d.Team;
-                };
-            }); /*map in the positions using the lookup to positions variable*/
-            redraw();
-        })
-        /*console.log("Congrats!  You have loaded the data!");*/
+        data = rows;
+        data.forEach(function(d) {
+            d.Pos = positions[d.Pos];
+            if (teams.indexOf(d.TeamID) < 0) {
+                teams.push(d.TeamID);
+                teams[d.TeamID] = d.Team;
+            };
+        }); /*map in the positions using the lookup to positions variable*/
+
+        selectTeam("afc-wimbledon");
+    });
+    /*console.log("Congrats!  You have loaded the data!");*/
 };
 /*note the console log to show the script has reached this stage
 check the browser console for this message!
@@ -78,7 +81,7 @@ LATER: reload() works just as well*/
  * It's good practice to keep the data input and drawing funcitons separate.
  * We'll be filling this in during the lesson.
  */
-var redraw = function() {
+var redraw = function(roster) {
     teamSelector.selectAll("option") /*only want to call the team list in for the selector when initialising */
         .data(teams) /*assign teams array as the data for teamSelector*/
         .enter() /*start an enter iterator*/
@@ -95,7 +98,8 @@ var redraw = function() {
     /*added the slice in there to take the first two columns off the header*/
 
     var rows = tbody.selectAll("tr")
-        .data(data); /*select the virtual table row elements and assign the data*/
+        .data(roster); /*select the virtual table row elements and assign the data*/
+    /*note this is changed from data to roster as the filter for teams is added in below*/
 
     rows.enter().append("tr"); /*for each row which doesn't already exist, i.e. all, create a tr element*/
     rows.exit().remove(); /*handle removing any unwanted rows on page reload, just in case*/
@@ -117,6 +121,18 @@ var redraw = function() {
 };
 /*note the console log to show the script has reached this stage
 check the browser console for this message to be sure it's working!*/
+
+var selectTeam = function(TeamID) {
+    var roster = data.filter(function(d) {
+        return d["TeamID"] === TeamID;
+    }); /*filtering the data for rows with the specified teamID*/
+    redraw(roster); /*call redraw, passing in the filtered roster - don't forget to update the redraw function to take this parameter*/
+
+    d3.select("#team-name").text(teams[TeamID] + " Roster"); /*set the team name header to be the team name + " Roster"*/
+    document.getElementById('team-selector').value = TeamID;
+    /*set the team selector to the specified teamID (handling the function being called outside the change event)*/
+
+};
 
 /* Finally we call the reload function on the page to get everything started (crank it up!)
  * Call reload() once the page and script have loaded to get the controller script started. */
