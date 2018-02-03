@@ -60,6 +60,14 @@ var reload = function() {
             };
         }); /*map in the positions using the lookup to positions variable*/
 
+        teamSelector.selectAll("option") /*only want to call the team list in for the selector when initialising */
+            .data(teams) /*assign teams array as the data for teamSelector*/
+            .enter() /*start an enter iterator*/
+            .append("option") /*append an option tag...*/
+            .attr("value", function(d) { return d; }) /*...with the value attribute of the current data value (teamID)*/
+            .text(function(d) { return teams[d]; }) /*set the options text to the team name*/
+            .sort(function(a, b) { return d3.ascending(a, b); }); /*sort the options in ascending order*/
+
         selectTeam("afc-wimbledon");
     });
     /*console.log("Congrats!  You have loaded the data!");*/
@@ -82,18 +90,23 @@ LATER: reload() works just as well*/
  * We'll be filling this in during the lesson.
  */
 var redraw = function(roster) {
-    teamSelector.selectAll("option") /*only want to call the team list in for the selector when initialising */
-        .data(teams) /*assign teams array as the data for teamSelector*/
-        .enter() /*start an enter iterator*/
-        .append("option") /*append an option tag...*/
-        .attr("value", function(d) { return d; }) /*...with the value attribute of the current data value (teamID)*/
-        .text(function(d) { return teams[d]; }) /*set the options text to the team name*/
-        .sort(function(a, b) { return d3.ascending(a, b); }); /*sort the options in ascending order*/
-
     thead.selectAll("th") /*select virtual th elements*/
         .data(columns) /*map & assign the first record's keys (as in key:value) as their data*/
         .enter()
         .append("th") /*enter the th elements where there was no data before, i.e. all*/
+        .on("click", function(d) {
+            /*sorting the table: add a click handler when appending the headers, 
+                       in this position to make it clear it applies to the appended th element*/
+            tbody.selectAll("tr")
+                .sort(function(a, b) { /*call with two row's datasets to compare*/
+                    return (d === "No") ?
+                        d3.ascending(+a[d], +b[d]) :
+                        d3.ascending(a[d], b[d]);
+                });
+            /*pass numeric values to d3.ascending if the current column is the No column
+                           /*otherwise, just sort as a string*/
+            /*NB this doesn't work in Safari...?*/
+        })
         .text(function(d) { return d; }); /*with the appropriate text, as per chapter 1*/
     /*added the slice in there to take the first two columns off the header*/
 
